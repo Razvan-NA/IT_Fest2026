@@ -58,6 +58,8 @@ class AuthActivity : AppCompatActivity() {
                             "email" to email,
                             "phone" to phone,
                             "fcmToken" to token,
+                            "lastLatitude" to 0.0,
+                            "lastLongitude" to 0.0,
                             "createdAt" to System.currentTimeMillis()
                         )
                         db.collection("users").document(uid).set(user)
@@ -73,3 +75,4 @@ class AuthActivity : AppCompatActivity() {
         finish()
     }
 }
+

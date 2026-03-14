@@ -4,61 +4,82 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="32dp"
-    android:background="#CC0000">
+    android:padding="24dp"
+    android:background="#FFFFFF">
 
-    <TextView
-        android:text="⚠️ CĂDERE DETECTATĂ!"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"/>
-
-    <TextView
-        android:text="Ești bine?"
-        android:textSize="22sp"
-        android:textColor="#FFFFFF"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"/>
-
-    <TextView
-        android:text="Alerta se trimite automat în:"
-        android:textSize="16sp"
-        android:textColor="#FFCCCC"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"/>
-
-    <TextView
-        android:id="@+id/tvCountdown"
-        android:text="15"
-        android:textSize="72sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"/>
-
-    <Button
-        android:id="@+id/btnImOk"
-        android:text="✅ Sunt bine!"
-        android:textSize="20sp"
+    <!-- Timer card roșu -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@drawable/rounded_red_card"
         android:padding="16dp"
-        android:backgroundTint="#4CAF50"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:text="ALERTĂ SE TRIMITE ÎN"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textColor="#FFCCCC"
+            android:letterSpacing="0.15"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvCountdown"
+            android:text="15"
+            android:textSize="52sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- Titlu -->
+    <TextView
+        android:text="Cădere detectată!"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#B71C1C"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"/>
+
+    <!-- Subtitlu -->
+    <TextView
+        android:text="Alerta se trimite automat dacă nu răspunzi."
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Buton SUNT BINE -->
+    <Button
+        android:id="@+id/btnImOk"
+        android:text="SUNT BINE! ✓"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:backgroundTint="#2E7D32"
+        android:stateListAnimator="@null"/>
 
     <Button
         android:id="@+id/btnSendAlert"
-        android:text="🆘 Trimite alerta acum!"
-        android:textSize="18sp"
+        android:text="🆘 TRIMITE ALERTA ACUM"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:backgroundTint="#FF5722"/>
+        android:layout_height="60dp"
+        android:backgroundTint="#B71C1C"
+        android:stateListAnimator="@null"
+        android:layout_marginTop="12dp"/>
 
 </LinearLayout>

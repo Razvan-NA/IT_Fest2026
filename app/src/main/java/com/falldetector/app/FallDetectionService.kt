@@ -37,6 +37,7 @@ class FallDetectionService : Service(), SensorEventListener {
     private var lastAlertTime = 0L
     private val ALERT_COOLDOWN_MS = 30_000L
     private var alarmPlayer: MediaPlayer? = null
+    private var countdownTimer: android.os.CountDownTimer? = null
 
     companion object {
         const val CHANNEL_ID = "fall_detection_channel"
@@ -86,8 +87,15 @@ class FallDetectionService : Service(), SensorEventListener {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            "SEND_FALL_ALERT" -> sendFallToFirestore()
-            "STOP_ALARM" -> stopAlarm()
+            "SEND_FALL_ALERT" -> {
+                countdownTimer?.cancel()
+                sendFallToFirestore()
+                stopAlarm()
+            }
+            "STOP_ALARM" -> {
+                countdownTimer?.cancel()
+                stopAlarm()
+            }
         }
         return START_STICKY
     }
@@ -105,6 +113,11 @@ class FallDetectionService : Service(), SensorEventListener {
                             lastLat = it.latitude
                             lastLng = it.longitude
                             Log.d("FallService", "Location updated: $lastLat, $lastLng")
+
+                            // Salveaza locatia si la user
+                            val uid = auth.currentUser?.uid ?: return
+                            db.collection("users").document(uid)
+                                .update("lastLatitude", lastLat, "lastLongitude", lastLng)
                         }
                     }
                 },
@@ -148,6 +161,21 @@ class FallDetectionService : Service(), SensorEventListener {
         lastAlertTime = now
         startAlarmFromService()
         showFullScreenAlert()
+        startCountdownInService()
+    }
+
+    private fun startCountdownInService() {
+        countdownTimer?.cancel()
+        countdownTimer = object : android.os.CountDownTimer(15000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                Log.d("FallService", "Countdown: ${millisUntilFinished / 1000}s")
+            }
+            override fun onFinish() {
+                Log.w("FallService", "Countdown finished - sending alert automatically!")
+                sendFallToFirestore()
+                stopAlarm()
+            }
+        }.start()
     }
 
     private fun startAlarmFromService() {
@@ -276,6 +304,7 @@ class FallDetectionService : Service(), SensorEventListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        countdownTimer?.cancel()
         stopAlarm()
         sensorManager.unregisterListener(this)
         Log.d("FallService", "Service stopped!")
