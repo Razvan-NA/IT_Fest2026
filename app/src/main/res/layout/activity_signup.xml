@@ -13,7 +13,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="80dp"/>
+            android:layout_height="48dp"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -29,10 +29,38 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Bine ai revenit!"
+            android:text="Creează un cont nou"
             android:textColor="#9E9E9E"
             android:textSize="14sp"
-            android:layout_marginBottom="48dp"/>
+            android:layout_marginBottom="40dp"/>
+
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/input_background"
+            android:hint="Nume complet"
+            android:inputType="textPersonName"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="#212121"
+            android:textColorHint="#9E9E9E"
+            android:textSize="15sp"/>
+
+        <EditText
+            android:id="@+id/etPhone"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/input_background"
+            android:hint="Număr de telefon"
+            android:inputType="phone"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="#212121"
+            android:textColorHint="#9E9E9E"
+            android:textSize="15sp"/>
 
         <EditText
             android:id="@+id/etEmail"
@@ -63,14 +91,14 @@
             android:textSize="15sp"/>
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnLogin"
+            android:id="@+id/btnSignup"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginBottom="12dp"
             android:background="@drawable/btn_primary"
             android:backgroundTint="@null"
             android:stateListAnimator="@null"
-            android:text="Login"
+            android:text="Creează cont"
             android:textColor="#FFFFFF"
             android:textSize="17sp"
             android:textStyle="bold"/>
@@ -85,13 +113,13 @@
             android:textSize="13sp"/>
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnGoToSignup"
+            android:id="@+id/btnGoToLogin"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:background="@drawable/btn_secondary"
             android:backgroundTint="@null"
             android:stateListAnimator="@null"
-            android:text="Nu ai cont? Înregistrează-te"
+            android:text="Am deja cont — Login"
             android:textColor="#212121"
             android:textSize="16sp"
             android:textStyle="bold"/>

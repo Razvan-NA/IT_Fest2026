@@ -44,6 +44,7 @@
             android:launchMode="singleInstance"/>
 
         <activity android:name=".AuthActivity" android:exported="false"/>
+        <activity android:name=".SignupActivity" android:exported="false"/>
         <activity android:name=".MainActivity" android:exported="false"/>
 
         <activity
