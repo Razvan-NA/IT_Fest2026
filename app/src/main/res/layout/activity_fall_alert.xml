@@ -3,41 +3,45 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
     android:padding="24dp"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <!-- Timer card roșu -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        />
+    <!-- Titlu -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
+        android:layout_marginBottom="44dp"
         android:background="@drawable/rounded_red_card"
-        android:padding="16dp"
-        android:layout_marginBottom="24dp">
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <TextView
-            android:text="ALERTĂ SE TRIMITE ÎN"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:textColor="#FFCCCC"
-            android:letterSpacing="0.15"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"/>
+            android:layout_marginBottom="4dp"
+            android:letterSpacing="0.15"
+            android:text="ALERTĂ SE TRIMITE ÎN"
+            android:textColor="#FFCCCC"
+            android:textSize="11sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvCountdown"
-            android:text="15"
-            android:textSize="52sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="15"
+            android:textColor="#FFFFFF"
+            android:textSize="52sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Titlu -->
     <TextView
         android:text="Cădere detectată!"
         android:textSize="22sp"
@@ -45,29 +49,61 @@
         android:textColor="#B71C1C"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_marginBottom="10dp"/>
 
     <!-- Subtitlu -->
     <TextView
-        android:text="Alerta se trimite automat dacă nu răspunzi."
-        android:textSize="13sp"
-        android:textStyle="bold"
-        android:textColor="#000000"
-        android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"/>
+        android:layout_gravity="center"
+        android:layout_marginBottom="24dp"
+        android:gravity="center"
+        android:text="Alerta se trimite automat dacă nu răspunzi."
+        android:textColor="#000000"
+        android:textSize="17sp"
+        android:textStyle="bold" />
 
-    <!-- Buton SUNT BINE -->
-    <Button
-        android:id="@+id/btnImOk"
-        android:text="SUNT BINE! ✓"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
+    <Space
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:backgroundTint="#2E7D32"
-        android:stateListAnimator="@null"/>
+        android:layout_height="140dp"
+        />
+
+    <!-- Inele sonar + buton -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_marginBottom="32dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <View
+            android:id="@+id/ring1"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:background="@drawable/rounded_green_btn"
+            android:layout_gravity="center"/>
+
+        <View
+            android:id="@+id/ring2"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:background="@drawable/rounded_green_btn"
+            android:layout_gravity="center"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnImOk"
+            android:text="SUNT BINE! ✓"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:background="@drawable/rounded_green_btn"
+            android:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            android:layout_gravity="center"/>
+
+    </FrameLayout>
 
 </LinearLayout>
