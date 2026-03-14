@@ -12,6 +12,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,13 +26,20 @@ class MainActivity : AppCompatActivity() {
 
         requestPermissions()
 
+        // Actualizeaza tokenul FCM la fiecare deschidere
+        val uid = auth.currentUser?.uid
+        if (uid != null) {
+            FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+                db.collection("users").document(uid)
+                    .update("fcmToken", token)
+            }
+        }
+
         val tvStatus = findViewById<TextView>(R.id.tvStatus)
         val tvUserName = findViewById<TextView>(R.id.tvUserName)
         val btnToggle = findViewById<Button>(R.id.btnToggle)
         val btnLogout = findViewById<Button>(R.id.btnLogout)
 
-        // Afiseaza numele userului
-        val uid = auth.currentUser?.uid
         if (uid != null) {
             db.collection("users").document(uid).get()
                 .addOnSuccessListener { doc ->

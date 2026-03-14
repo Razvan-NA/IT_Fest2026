@@ -71,8 +71,15 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun goToMain() {
+        // Actualizeaza tokenul FCM la fiecare login
+        val uid = auth.currentUser?.uid
+        if (uid != null) {
+            FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+                db.collection("users").document(uid)
+                    .update("fcmToken", token)
+            }
+        }
         startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
 }
-
