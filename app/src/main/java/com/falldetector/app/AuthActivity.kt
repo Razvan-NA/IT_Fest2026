@@ -34,46 +34,12 @@ class AuthActivity : AppCompatActivity() {
                 .addOnFailureListener { tvError.text = it.message }
         }
 
-        btnSignup.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            val pass = etPassword.text.toString().trim()
-            val name = etName.text.toString().trim()
-            val phone = etPhone.text.toString().trim()
-            if (email.isEmpty() || pass.isEmpty() || name.isEmpty() || phone.isEmpty()) {
-                tvError.text = "Completează toate câmpurile"
-                return@setOnClickListener
-            }
-            auth.createUserWithEmailAndPassword(email, pass)
-                .addOnSuccessListener { result ->
-                    val uid = result.user!!.uid
-                    FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-                        val user = hashMapOf(
-                            "uid" to uid,
-                            "name" to name,
-                            "email" to email,
-                            "phone" to phone,
-                            "fcmToken" to token,
-                            "lastLatitude" to 0.0,
-                            "lastLongitude" to 0.0,
-                            "createdAt" to System.currentTimeMillis()
-                        )
-                        db.collection("users").document(uid).set(user)
-                            .addOnSuccessListener { goToMain() }
-                    }
-                }
-                .addOnFailureListener { tvError.text = it.message }
+        btnGoToSignup.setOnClickListener {
+            startActivity(Intent(this, SignupActivity::class.java))
         }
     }
 
     private fun goToMain() {
-        // Actualizeaza tokenul FCM la fiecare login
-        val uid = auth.currentUser?.uid
-        if (uid != null) {
-            FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-                db.collection("users").document(uid)
-                    .update("fcmToken", token)
-            }
-        }
         startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
