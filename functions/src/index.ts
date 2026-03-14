@@ -33,16 +33,16 @@ export const onFallDetected = onDocumentCreated(
     }
 
     const message = {
-      notification: {
-        title: "⚠️ Alertă cădere!",
-        body: `${fromName} a căzut! Locație: ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-      },
+      // NO notification block — data only!
       data: {
         fromUid: fromUid,
         fromName: fromName,
         latitude: lat.toString(),
         longitude: lng.toString(),
         type: "fall_alert",
+      },
+      android: {
+        priority: "high" as const,
       },
       tokens: tokens,
     };
