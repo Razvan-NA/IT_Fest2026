@@ -37,10 +37,14 @@ class FallDetectionService : Service(), SensorEventListener {
     private var lastAlertTime = 0L
     private val ALERT_COOLDOWN_MS = 30_000L
     private var alarmPlayer: MediaPlayer? = null
+    private var countdownTimer: android.os.CountDownTimer? = null
+    private var alertAlreadySent = false
 
     companion object {
         const val CHANNEL_ID = "fall_detection_channel"
         const val NOTIF_ID = 1
+        var fallDetectedAt = 0L
+            private set
 
         fun startService(context: Context) {
             val intent = Intent(context, FallDetectionService::class.java)
@@ -60,6 +64,12 @@ class FallDetectionService : Service(), SensorEventListener {
         fun stopAlarmStatic(context: Context) {
             val intent = Intent(context, FallDetectionService::class.java)
             intent.action = "STOP_ALARM"
+            context.startService(intent)
+        }
+
+        fun cancelAlert(context: Context) {
+            val intent = Intent(context, FallDetectionService::class.java)
+            intent.action = "CANCEL_ALERT"
             context.startService(intent)
         }
     }
@@ -86,8 +96,20 @@ class FallDetectionService : Service(), SensorEventListener {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            "SEND_FALL_ALERT" -> sendFallToFirestore()
-            "STOP_ALARM" -> stopAlarm()
+            "SEND_FALL_ALERT" -> {
+                countdownTimer?.cancel()
+                sendFallToFirestore()
+                stopAlarm()
+            }
+            "STOP_ALARM" -> {
+                countdownTimer?.cancel()
+                stopAlarm()
+            }
+            "CANCEL_ALERT" -> {
+                countdownTimer?.cancel()
+                alertAlreadySent = true
+                stopAlarm()
+            }
         }
         return START_STICKY
     }
@@ -105,6 +127,9 @@ class FallDetectionService : Service(), SensorEventListener {
                             lastLat = it.latitude
                             lastLng = it.longitude
                             Log.d("FallService", "Location updated: $lastLat, $lastLng")
+                            val uid = auth.currentUser?.uid ?: return
+                            db.collection("users").document(uid)
+                                .update("lastLatitude", lastLat, "lastLongitude", lastLng)
                         }
                     }
                 },
@@ -146,15 +171,29 @@ class FallDetectionService : Service(), SensorEventListener {
         val now = System.currentTimeMillis()
         if (now - lastAlertTime < ALERT_COOLDOWN_MS) return
         lastAlertTime = now
+        fallDetectedAt = now
+        alertAlreadySent = false
         startAlarmFromService()
         showFullScreenAlert()
+        startCountdownInService()
+    }
+
+    private fun startCountdownInService() {
+        countdownTimer?.cancel()
+        countdownTimer = object : android.os.CountDownTimer(15000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                Log.d("FallService", "Countdown: ${millisUntilFinished / 1000}s")
+            }
+            override fun onFinish() {
+                Log.w("FallService", "Countdown finished - sending alert automatically!")
+                sendFallToFirestore()
+                stopAlarm()
+            }
+        }.start()
     }
 
     private fun startAlarmFromService() {
         try {
-            val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-                ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-
             val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
             audioManager.setStreamVolume(
                 AudioManager.STREAM_ALARM,
@@ -162,16 +201,14 @@ class FallDetectionService : Service(), SensorEventListener {
                 0
             )
 
-            alarmPlayer = MediaPlayer().apply {
+            alarmPlayer = MediaPlayer.create(this, R.raw.alert_sound).apply {
                 setAudioAttributes(
                     AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_ALARM)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                         .build()
                 )
-                setDataSource(this@FallDetectionService, alarmUri)
                 isLooping = true
-                prepare()
                 start()
             }
             Log.d("FallService", "Alarm started!")
@@ -226,6 +263,9 @@ class FallDetectionService : Service(), SensorEventListener {
     }
 
     fun sendFallToFirestore() {
+        if (alertAlreadySent) return
+        alertAlreadySent = true
+
         val uid = auth.currentUser?.uid ?: return
         val now = System.currentTimeMillis()
 
@@ -276,6 +316,7 @@ class FallDetectionService : Service(), SensorEventListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        countdownTimer?.cancel()
         stopAlarm()
         sensorManager.unregisterListener(this)
         Log.d("FallService", "Service stopped!")

@@ -1,9 +1,8 @@
 package com.falldetector.app
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.content.Intent
+import android.os.Build
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -22,30 +21,24 @@ class FallFCMService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        val title = message.notification?.title ?: message.data["title"] ?: "Alertă cădere!"
-        val body = message.notification?.body ?: message.data["body"] ?: "Un utilizator a căzut!"
-        showNotification(title, body)
-    }
+        Log.d("FCM", "Message received! Data: ${message.data}")
 
-    private fun showNotification(title: String, body: String) {
-        val channelId = "fall_alert_channel"
-        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val fromName = message.data["fromName"] ?: "Utilizator"
+        val lat = message.data["latitude"] ?: "0"
+        val lng = message.data["longitude"] ?: "0"
 
-        val channel = NotificationChannel(
-            channelId,
-            "Fall Alerts",
-            NotificationManager.IMPORTANCE_HIGH
-        )
-        manager.createNotificationChannel(channel)
+        // Start the foreground service — this works even when app is killed
+        // because FCM temporarily wakes the app for data messages
+        val intent = Intent(this, FallReceivedService::class.java).apply {
+            putExtra("name", fromName)
+            putExtra("lat", lat)
+            putExtra("lng", lng)
+        }
 
-        val notif = NotificationCompat.Builder(this, channelId)
-            .setContentTitle(title)
-            .setContentText(body)
-            .setSmallIcon(android.R.drawable.ic_dialog_alert)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .build()
-
-        manager.notify(System.currentTimeMillis().toInt(), notif)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
     }
 }

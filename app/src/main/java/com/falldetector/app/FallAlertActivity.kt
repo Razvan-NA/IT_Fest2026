@@ -55,6 +55,7 @@ class FallAlertActivity : AppCompatActivity() {
 
         findViewById<AppCompatButton>(R.id.btnImOk).setOnClickListener {
             stopEverything()
+            FallDetectionService.cancelAlert(this)
             finish()
         }
     }
@@ -62,7 +63,17 @@ class FallAlertActivity : AppCompatActivity() {
     private fun startCountdown() {
         val tvCountdown = findViewById<TextView>(R.id.tvCountdown)
 
-        countDownTimer = object : CountDownTimer(15000, 1000) {
+        // Sincronizat cu serviciul
+        val elapsed = System.currentTimeMillis() - FallDetectionService.fallDetectedAt
+        val remaining = (15000 - elapsed).coerceAtLeast(0)
+
+        if (remaining <= 0) {
+            stopEverything()
+            finish()
+            return
+        }
+
+        countDownTimer = object : CountDownTimer(remaining, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 tvCountdown.text = "${millisUntilFinished / 1000}"
             }
@@ -70,7 +81,6 @@ class FallAlertActivity : AppCompatActivity() {
             override fun onFinish() {
                 tvCountdown.text = "0"
                 stopEverything()
-                FallDetectionService.triggerFallAlert(this@FallAlertActivity)
                 finish()
             }
         }.start()
