@@ -59,15 +59,18 @@ class MainActivity : AppCompatActivity() {
 
         tvStatus.text = "Monitorizare activă"
         FallDetectionService.startService(this)
+        VoiceDetectionService.startService(this)
 
         btnToggle.setOnClickListener {
             if (isMonitoring) {
                 FallDetectionService.stopService(this)
+                VoiceDetectionService.stopService(this)
                 tvStatus.text = "Monitorizare oprită"
                 btnToggle.text = "Pornește monitorizarea"
                 isMonitoring = false
             } else {
                 FallDetectionService.startService(this)
+                VoiceDetectionService.startService(this)
                 tvStatus.text = "Monitorizare activă"
                 btnToggle.text = "Oprește monitorizarea"
                 isMonitoring = true
@@ -99,6 +102,7 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             perms.add(Manifest.permission.POST_NOTIFICATIONS)
             perms.add(Manifest.permission.CALL_PHONE)
+            perms.add(Manifest.permission.RECORD_AUDIO)
         }
         val toRequest = perms.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED

@@ -73,6 +73,12 @@ class FallDetectionService : Service(), SensorEventListener {
             intent.action = "CANCEL_ALERT"
             context.startService(intent)
         }
+
+        fun triggerVoiceAlert(context: Context) {
+            val intent = Intent(context, FallDetectionService::class.java)
+            intent.action = "VOICE_ALERT"
+            context.startService(intent)
+        }
     }
 
     override fun onCreate() {
@@ -110,6 +116,9 @@ class FallDetectionService : Service(), SensorEventListener {
                 countdownTimer?.cancel()
                 alertAlreadySent = true
                 stopAlarm()
+            }
+            "VOICE_ALERT" -> {
+                onFallDetected()
             }
         }
         return START_STICKY

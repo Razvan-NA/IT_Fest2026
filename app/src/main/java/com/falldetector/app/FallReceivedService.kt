@@ -128,9 +128,6 @@ class FallReceivedService : Service() {
 
     private fun startAlarm() {
         try {
-            val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-                ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-
             val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
             audioManager.setStreamVolume(
                 AudioManager.STREAM_ALARM,
@@ -138,23 +135,20 @@ class FallReceivedService : Service() {
                 0
             )
 
-            alarmPlayer = MediaPlayer().apply {
+            alarmPlayer = MediaPlayer.create(this, R.raw.alert_notification).apply {
                 setAudioAttributes(
                     AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_ALARM)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                         .build()
                 )
-                setDataSource(this@FallReceivedService, alarmUri)
                 isLooping = true
-                prepare()
                 start()
             }
         } catch (e: Exception) {
             Log.e("FallReceivedService", "Alarm sound failed: ${e.message}")
         }
     }
-
     fun stopAlarm() {
         alarmPlayer?.stop()
         alarmPlayer?.release()
