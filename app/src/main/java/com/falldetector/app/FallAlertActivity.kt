@@ -14,6 +14,7 @@ import androidx.appcompat.widget.AppCompatButton
 class FallAlertActivity : AppCompatActivity() {
 
     private var countDownTimer: CountDownTimer? = null
+    private var alertHandled = false
 
     companion object {
         const val NOTIFICATION_ID = 999
@@ -46,13 +47,15 @@ class FallAlertActivity : AppCompatActivity() {
         startCountdown()
 
         findViewById<AppCompatButton>(R.id.btnImOk).setOnClickListener {
-            stopEverything()
+            alertHandled = true
+            countDownTimer?.cancel()
             FallDetectionService.cancelAlert(this)
             finish()
         }
 
         findViewById<AppCompatButton>(R.id.btnSendAlert).setOnClickListener {
-            stopEverything()
+            alertHandled = true
+            countDownTimer?.cancel()
             FallDetectionService.triggerFallAlert(this)
             finish()
         }
@@ -65,7 +68,6 @@ class FallAlertActivity : AppCompatActivity() {
         val remaining = (15000 - elapsed).coerceAtLeast(0)
 
         if (remaining <= 0) {
-            stopEverything()
             finish()
             return
         }
@@ -77,19 +79,18 @@ class FallAlertActivity : AppCompatActivity() {
 
             override fun onFinish() {
                 tvCountdown.text = "0"
-                stopEverything()
                 finish()
             }
         }.start()
     }
 
-    private fun stopEverything() {
-        countDownTimer?.cancel()
-        FallDetectionService.stopAlarmStatic(this)
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        stopEverything()
+        countDownTimer?.cancel()
+        if (!alertHandled) {
+            // Activity closed without user action — just stop alarm sound
+            // Countdown in service continues and will send automatically
+            FallDetectionService.stopAlarmStatic(this)
+        }
     }
 }

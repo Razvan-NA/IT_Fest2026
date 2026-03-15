@@ -252,10 +252,31 @@ class FallDetectionService : Service(), SensorEventListener {
             override fun onFinish() {
                 Log.w("FallService", "Countdown finished - sending alert automatically!")
                 sendFallToFirestore()
+                callEmergencyNumber()
                 stopAlarm()
             }
         }.start()
     }
+
+    private fun callEmergencyNumber() {
+        try {
+            // Pentru teste: număr inexistent
+            // Pentru producție: înlocuiește cu "112"
+            val emergencyNumber = "0799999999"
+
+            val callIntent = Intent(Intent.ACTION_CALL).apply {
+                data = android.net.Uri.parse("tel:$emergencyNumber")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(callIntent)
+            Log.d("FallService", "Emergency call initiated to $emergencyNumber")
+        } catch (e: SecurityException) {
+            Log.e("FallService", "Call permission missing: ${e.message}")
+        } catch (e: Exception) {
+            Log.e("FallService", "Call failed: ${e.message}")
+        }
+    }
+
 
     private fun startAlarmFromService() {
         try {
