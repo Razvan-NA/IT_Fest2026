@@ -54,7 +54,7 @@ class FallReceivedService : Service() {
 
         startAlarm()
         showFullScreenAlert(name, lat, lng)
-        launchActivityViaAlarm(name, lat, lng)
+        //launchActivityViaAlarm(name, lat, lng)
 
         return START_NOT_STICKY
     }
@@ -86,7 +86,6 @@ class FallReceivedService : Service() {
 
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // Fire immediately (100ms from now)
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (alarmManager.canScheduleExactAlarms()) {
@@ -96,7 +95,6 @@ class FallReceivedService : Service() {
                         pendingIntent
                     )
                 } else {
-                    // Fallback: use inexact alarm
                     alarmManager.setAndAllowWhileIdle(
                         AlarmManager.ELAPSED_REALTIME_WAKEUP,
                         SystemClock.elapsedRealtime() + 100,
@@ -113,7 +111,6 @@ class FallReceivedService : Service() {
             Log.d("FallReceivedService", "Alarm scheduled to launch activity")
         } catch (e: Exception) {
             Log.e("FallReceivedService", "Alarm scheduling failed: ${e.message}")
-            // Last resort: try direct launch
             try {
                 val directIntent = Intent(this, FallReceivedActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -175,13 +172,8 @@ class FallReceivedService : Service() {
         }
 
         val fullScreenPendingIntent = PendingIntent.getActivity(
-            this, System.currentTimeMillis().toInt(), fullScreenIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val contentPendingIntent = PendingIntent.getActivity(
-            this, (System.currentTimeMillis() + 1).toInt(), fullScreenIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            this, 0, fullScreenIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
 
         val notifManager = getSystemService(NotificationManager::class.java)
@@ -211,9 +203,9 @@ class FallReceivedService : Service() {
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setFullScreenIntent(fullScreenPendingIntent, true)
-            .setContentIntent(contentPendingIntent)
-            .setAutoCancel(false)
-            .setOngoing(true)
+            .setContentIntent(fullScreenPendingIntent)
+            .setAutoCancel(true)
+            .setOngoing(false)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setVibrate(longArrayOf(0, 1000, 500, 1000, 500, 1000))
             .build()

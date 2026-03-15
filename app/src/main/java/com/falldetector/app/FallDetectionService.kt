@@ -16,6 +16,7 @@ import com.google.android.gms.location.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.math.sqrt
+import android.os.PowerManager
 
 class FallDetectionService : Service(), SensorEventListener {
 
@@ -174,8 +175,73 @@ class FallDetectionService : Service(), SensorEventListener {
         fallDetectedAt = now
         alertAlreadySent = false
         startAlarmFromService()
-        showFullScreenAlert()
+
+        // Launch activity DIRECTLY — instant
+        try {
+            val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+            val wl = pm.newWakeLock(
+                PowerManager.SCREEN_BRIGHT_WAKE_LOCK or
+                        PowerManager.ACQUIRE_CAUSES_WAKEUP or
+                        PowerManager.ON_AFTER_RELEASE,
+                "falldetector:fall_wake"
+            )
+            wl.acquire(20_000L)
+
+            val activityIntent = Intent(this, FallAlertActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            }
+            startActivity(activityIntent)
+            Log.d("FallService", "FallAlertActivity launched directly")
+        } catch (e: Exception) {
+            Log.e("FallService", "Direct launch failed: ${e.message}")
+        }
+
+        showFullScreenAlert()       // notification as backup
+        //launchAlertViaAlarm()       // alarm as second backup
         startCountdownInService()
+    }
+
+    private fun launchAlertViaAlarm() {
+        val alarmIntent = Intent(this, FallAlertReceiver::class.java)
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            System.currentTimeMillis().toInt(),
+            alarmIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                if (alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        android.os.SystemClock.elapsedRealtime() + 100,
+                        pendingIntent
+                    )
+                } else {
+                    alarmManager.setAndAllowWhileIdle(
+                        AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        android.os.SystemClock.elapsedRealtime() + 100,
+                        pendingIntent
+                    )
+                }
+            } else {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    android.os.SystemClock.elapsedRealtime() + 100,
+                    pendingIntent
+                )
+            }
+            Log.d("FallService", "Alarm scheduled to launch FallAlertActivity")
+        } catch (e: Exception) {
+            Log.e("FallService", "Alarm failed: ${e.message}")
+        }
     }
 
     private fun startCountdownInService() {

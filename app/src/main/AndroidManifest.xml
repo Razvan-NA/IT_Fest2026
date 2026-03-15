@@ -73,6 +73,10 @@
         </receiver>
 
         <receiver
+            android:name=".FallAlertReceiver"
+            android:exported="false"/>
+
+        <receiver
             android:name=".AlertReceiver"
             android:exported="false"/>
 
