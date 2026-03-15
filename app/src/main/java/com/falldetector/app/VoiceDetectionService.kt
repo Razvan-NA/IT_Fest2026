@@ -24,7 +24,7 @@ class VoiceDetectionService : Service() {
         const val NOTIF_ID = 200
 
         // Cuvinte cheie care declanșează alerta
-        val KEYWORDS = listOf("ajutor fall detector","ajutor folditector", "ajutor detector", "Victor", "help", "urgenta", "urgență", "pula", "penis", "nigger", "te rog nu mai da", "tung tung tung sahur", "tum tum tum sahur")
+        val KEYWORDS = listOf("ajutor detector", "te rog nu mai da")
 
         fun startService(context: Context) {
             val intent = Intent(context, VoiceDetectionService::class.java)
