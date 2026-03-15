@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class EmergencyContactsActivity : AppCompatActivity() {
 
@@ -28,7 +29,6 @@ class EmergencyContactsActivity : AppCompatActivity() {
 
         val uid = auth.currentUser?.uid ?: return
 
-        // Load existing contacts
         loadContacts(uid)
 
         btnAdd.setOnClickListener {
@@ -57,10 +57,25 @@ class EmergencyContactsActivity : AppCompatActivity() {
     private fun loadContacts(uid: String) {
         db.collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
-                val saved = doc.get("emergencyContacts") as? List<Map<String, String>>
-                if (saved != null) {
+                try {
+                    val saved = doc.get("emergencyContacts") as? List<*>
+                    if (saved != null) {
+                        contacts.clear()
+                        for (item in saved) {
+                            if (item is Map<*, *>) {
+                                val name = item["name"]?.toString() ?: ""
+                                val phone = item["phone"]?.toString() ?: ""
+                                if (name.isNotEmpty() || phone.isNotEmpty()) {
+                                    contacts.add(mapOf("name" to name, "phone" to phone))
+                                }
+                            }
+                        }
+                    }
+                    renderContacts(uid)
+                } catch (e: Exception) {
                     contacts.clear()
-                    contacts.addAll(saved)
+                    db.collection("users").document(uid)
+                        .update("emergencyContacts", contacts)
                     renderContacts(uid)
                 }
             }
@@ -75,9 +90,8 @@ class EmergencyContactsActivity : AppCompatActivity() {
                 renderContacts(uid)
             }
             .addOnFailureListener {
-                // If field doesn't exist yet, set it
                 db.collection("users").document(uid)
-                    .set(mapOf("emergencyContacts" to contacts), com.google.firebase.firestore.SetOptions.merge())
+                    .set(mapOf("emergencyContacts" to contacts), SetOptions.merge())
                     .addOnSuccessListener {
                         tvStatus.text = "Salvat"
                         tvStatus.setTextColor(0xFF4CAF50.toInt())
