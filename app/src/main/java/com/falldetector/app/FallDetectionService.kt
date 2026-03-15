@@ -271,7 +271,7 @@ class FallDetectionService : Service(), SensorEventListener {
         try {
             // Pentru teste: număr inexistent
             // Pentru producție: înlocuiește cu "112"
-            val emergencyNumber = "0799999999"
+            val emergencyNumber = "0723572574"
 
             val callIntent = Intent(Intent.ACTION_CALL).apply {
                 data = android.net.Uri.parse("tel:$emergencyNumber")
