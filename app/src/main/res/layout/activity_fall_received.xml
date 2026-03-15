@@ -1,57 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="32dp"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF"
+    android:fillViewport="true">
 
-    <TextView
-        android:text="🚨"
-        android:textSize="64sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"/>
-
-    <TextView
-        android:id="@+id/tvFallName"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="#B71C1C"
-        android:gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"/>
-
-    <TextView
-        android:id="@+id/tvFallLocation"
-        android:textSize="14sp"
-        android:textColor="#555555"
-        android:gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"/>
-
-    <Button
-        android:id="@+id/btnOpenMaps"
-        android:text="📍 Deschide în Maps"
-        android:textSize="16sp"
-        android:textColor="#FFFFFF"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:backgroundTint="#1565C0"
-        android:stateListAnimator="@null"
-        android:layout_marginBottom="12dp"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center">
 
-    <Button
-        android:id="@+id/btnOk"
-        android:text="✅ Am văzut"
-        android:textSize="16sp"
-        android:textColor="#FFFFFF"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:backgroundTint="#2E7D32"
-        android:stateListAnimator="@null"/>
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="48dp"/>
 
-</LinearLayout>
+        <View
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/alert_circle"
+            android:layout_marginBottom="24dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Alertă cădere"
+            android:textColor="#B71C1C"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.15"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvFallName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#212121"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="12dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/input_background"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="48dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Locație"
+                android:textColor="#9E9E9E"
+                android:textSize="12sp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/tvFallLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#212121"
+                android:textSize="15sp"
+                android:gravity="center"/>
+
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnOpenMaps"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/btn_primary"
+            android:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            android:text="Deschide în Maps"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp"
+            android:textStyle="bold"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnOk"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/btn_secondary"
+            android:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            android:text="Am văzut"
+            android:textColor="#212121"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+
+</ScrollView>

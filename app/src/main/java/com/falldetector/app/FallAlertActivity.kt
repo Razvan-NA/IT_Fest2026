@@ -1,18 +1,12 @@
 package com.falldetector.app
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.app.KeyguardManager
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.view.View
 import android.view.WindowManager
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
@@ -20,7 +14,6 @@ import androidx.appcompat.widget.AppCompatButton
 class FallAlertActivity : AppCompatActivity() {
 
     private var countDownTimer: CountDownTimer? = null
-    private val sonarAnimators = mutableListOf<AnimatorSet>()
 
     companion object {
         const val NOTIFICATION_ID = 999
@@ -51,11 +44,16 @@ class FallAlertActivity : AppCompatActivity() {
         setContentView(R.layout.activity_fall_alert)
 
         startCountdown()
-        startSonarAnimation()
 
         findViewById<AppCompatButton>(R.id.btnImOk).setOnClickListener {
             stopEverything()
             FallDetectionService.cancelAlert(this)
+            finish()
+        }
+
+        findViewById<AppCompatButton>(R.id.btnSendAlert).setOnClickListener {
+            stopEverything()
+            FallDetectionService.triggerFallAlert(this)
             finish()
         }
     }
@@ -63,7 +61,6 @@ class FallAlertActivity : AppCompatActivity() {
     private fun startCountdown() {
         val tvCountdown = findViewById<TextView>(R.id.tvCountdown)
 
-        // Sincronizat cu serviciul
         val elapsed = System.currentTimeMillis() - FallDetectionService.fallDetectedAt
         val remaining = (15000 - elapsed).coerceAtLeast(0)
 
@@ -86,39 +83,8 @@ class FallAlertActivity : AppCompatActivity() {
         }.start()
     }
 
-    private fun startSonarAnimation() {
-        listOf(
-            Pair(R.id.ring1, 0L),
-            Pair(R.id.ring2, 800L)
-        ).forEach { (id, delay) ->
-            val ring = findViewById<View>(id)
-
-            val scaleX = ObjectAnimator.ofFloat(ring, "scaleX", 1f, 1.3f)
-            val scaleY = ObjectAnimator.ofFloat(ring, "scaleY", 1f, 1.3f)
-            val alpha = ObjectAnimator.ofFloat(ring, "alpha", 0.5f, 0f)
-
-            val anim = AnimatorSet()
-            anim.playTogether(scaleX, scaleY, alpha)
-            anim.duration = 2400
-            anim.startDelay = delay
-            anim.interpolator = AccelerateDecelerateInterpolator()
-            anim.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    ring.scaleX = 1f
-                    ring.scaleY = 1f
-                    ring.alpha = 0.5f
-                    anim.start()
-                }
-            })
-            anim.start()
-            sonarAnimators.add(anim)
-        }
-    }
-
     private fun stopEverything() {
         countDownTimer?.cancel()
-        sonarAnimators.forEach { it.cancel() }
-        sonarAnimators.clear()
         FallDetectionService.stopAlarmStatic(this)
     }
 
