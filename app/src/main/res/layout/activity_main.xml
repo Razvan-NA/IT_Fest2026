@@ -82,6 +82,32 @@
             android:textStyle="bold"/>
 
         <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnEmergency"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/btn_secondary"
+            android:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            android:text="Contacte de urgență"
+            android:textColor="#212121"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnMedical"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/btn_secondary"
+            android:backgroundTint="@null"
+            android:stateListAnimator="@null"
+            android:text="Profil medical"
+            android:textColor="#212121"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnLogout"
             android:layout_width="match_parent"
             android:layout_height="56dp"

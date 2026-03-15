@@ -7,10 +7,13 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.view.WindowManager
-import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
+import com.google.firebase.firestore.FirebaseFirestore
 
 class FallReceivedActivity : AppCompatActivity() {
 
@@ -31,7 +34,6 @@ class FallReceivedActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Show over lock screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
@@ -43,13 +45,11 @@ class FallReceivedActivity : AppCompatActivity() {
                     WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
 
-        // Dismiss keyguard
         val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             keyguardManager.requestDismissKeyguard(this, null)
         }
 
-        // Cancel the full-screen notification
         val notifManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notifManager.cancel(FallReceivedService.ALERT_NOTIF_ID)
 
@@ -59,10 +59,13 @@ class FallReceivedActivity : AppCompatActivity() {
         val lat = intent.getStringExtra("lat") ?: "0"
         val lng = intent.getStringExtra("lng") ?: "0"
 
-        findViewById<TextView>(R.id.tvFallName).text = "⚠️ $name a căzut!"
-        findViewById<TextView>(R.id.tvFallLocation).text = "Locație: $lat, $lng"
+        findViewById<TextView>(R.id.tvFallName).text = "$name a căzut!"
+        findViewById<TextView>(R.id.tvFallLocation).text = "$lat, $lng"
 
-        findViewById<Button>(R.id.btnOpenMaps).setOnClickListener {
+        // Load medical profile
+        loadMedicalProfile(name)
+
+        findViewById<AppCompatButton>(R.id.btnOpenMaps).setOnClickListener {
             stopReceivedService()
             val uri = Uri.parse("geo:$lat,$lng?q=$lat,$lng($name)")
             val mapsIntent = Intent(Intent.ACTION_VIEW, uri)
@@ -79,10 +82,45 @@ class FallReceivedActivity : AppCompatActivity() {
             finish()
         }
 
-        findViewById<Button>(R.id.btnOk).setOnClickListener {
+        findViewById<AppCompatButton>(R.id.btnOk).setOnClickListener {
             stopReceivedService()
             finish()
         }
+    }
+
+    private fun loadMedicalProfile(name: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users")
+            .whereEqualTo("name", name)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { docs ->
+                if (docs.isEmpty) return@addOnSuccessListener
+
+                val doc = docs.first()
+                val conditions = doc.getString("medicalConditions") ?: ""
+                val allergies = doc.getString("allergies") ?: ""
+                val medication = doc.getString("medication") ?: ""
+
+                if (conditions.isEmpty() && allergies.isEmpty() && medication.isEmpty()) return@addOnSuccessListener
+
+                val medicalSection = findViewById<LinearLayout>(R.id.medicalSection)
+                medicalSection.visibility = View.VISIBLE
+
+                if (conditions.isNotEmpty()) {
+                    findViewById<TextView>(R.id.tvConditions).text = conditions
+                    findViewById<LinearLayout>(R.id.conditionsRow).visibility = View.VISIBLE
+                }
+                if (allergies.isNotEmpty()) {
+                    findViewById<TextView>(R.id.tvAllergies).text = allergies
+                    findViewById<LinearLayout>(R.id.allergiesRow).visibility = View.VISIBLE
+                }
+                if (medication.isNotEmpty()) {
+                    findViewById<TextView>(R.id.tvMedication).text = medication
+                    findViewById<LinearLayout>(R.id.medicationRow).visibility = View.VISIBLE
+                }
+            }
     }
 
     private fun stopReceivedService() {

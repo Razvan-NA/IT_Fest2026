@@ -34,6 +34,36 @@ export const onFallDetected = onDocumentCreated(
     const fallLat = userData?.lastLatitude ?? fallData.latitude;
     const fallLng = userData?.lastLongitude ?? fallData.longitude;
 
+    // --- 1. Send SMS to emergency contacts (always, no distance check) ---
+    const emergencyContacts = userData?.emergencyContacts as Array<{name: string, phone: string}> | undefined;
+
+    if (emergencyContacts && emergencyContacts.length > 0) {
+      const twilio = require("twilio")(
+        process.env.TWILIO_SID,
+        process.env.TWILIO_TOKEN
+      );
+
+      const mapsLink = `https://maps.google.com/?q=${fallLat},${fallLng}`;
+      const smsBody = `ALERTA: ${fromName} a cazut si are nevoie de ajutor! Locatie: ${mapsLink}`;
+
+      const smsPromises = emergencyContacts.map((contact) => {
+        return twilio.messages.create({
+          body: smsBody,
+          from: process.env.TWILIO_PHONE,
+          to: contact.phone,
+        }).then(() => {
+          console.log(`SMS sent to ${contact.name} (${contact.phone})`);
+        }).catch((err: any) => {
+          console.error(`SMS failed to ${contact.phone}: ${err.message}`);
+        });
+      });
+
+      await Promise.all(smsPromises);
+    } else {
+      console.log("No emergency contacts configured");
+    }
+
+    // --- 2. Send push notifications to nearby users (existing code, untouched) ---
     const RADIUS_METERS = 500;
 
     const usersSnapshot = await admin.firestore().collection("users").get();

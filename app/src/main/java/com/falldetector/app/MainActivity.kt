@@ -11,10 +11,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
-import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
@@ -46,8 +46,8 @@ class MainActivity : AppCompatActivity() {
 
         val tvStatus = findViewById<TextView>(R.id.tvStatus)
         val tvUserName = findViewById<TextView>(R.id.tvUserName)
-        val btnToggle = findViewById<Button>(R.id.btnToggle)
-        val btnLogout = findViewById<Button>(R.id.btnLogout)
+        val btnToggle = findViewById<AppCompatButton>(R.id.btnToggle)
+        val btnLogout = findViewById<AppCompatButton>(R.id.btnLogout)
 
         if (uid != null) {
             db.collection("users").document(uid).get()
@@ -57,21 +57,29 @@ class MainActivity : AppCompatActivity() {
                 }
         }
 
-        tvStatus.text = "Monitorizare: ACTIV ✅"
+        tvStatus.text = "Monitorizare activă"
         FallDetectionService.startService(this)
 
         btnToggle.setOnClickListener {
             if (isMonitoring) {
                 FallDetectionService.stopService(this)
-                tvStatus.text = "Monitorizare: OPRIT ❌"
+                tvStatus.text = "Monitorizare oprită"
                 btnToggle.text = "Pornește monitorizarea"
                 isMonitoring = false
             } else {
                 FallDetectionService.startService(this)
-                tvStatus.text = "Monitorizare: ACTIV ✅"
+                tvStatus.text = "Monitorizare activă"
                 btnToggle.text = "Oprește monitorizarea"
                 isMonitoring = true
             }
+        }
+
+        findViewById<AppCompatButton>(R.id.btnMedical).setOnClickListener {
+            startActivity(Intent(this, MedicalProfileActivity::class.java))
+        }
+
+        findViewById<AppCompatButton>(R.id.btnEmergency).setOnClickListener {
+            startActivity(Intent(this, EmergencyContactsActivity::class.java))
         }
 
         btnLogout.setOnClickListener {

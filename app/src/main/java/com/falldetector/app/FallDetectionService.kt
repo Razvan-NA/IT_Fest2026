@@ -103,7 +103,7 @@ class FallDetectionService : Service(), SensorEventListener {
                 stopAlarm()
             }
             "STOP_ALARM" -> {
-                countdownTimer?.cancel()
+                // Only stop the alarm sound, DON'T cancel countdown
                 stopAlarm()
             }
             "CANCEL_ALERT" -> {
@@ -114,7 +114,6 @@ class FallDetectionService : Service(), SensorEventListener {
         }
         return START_STICKY
     }
-
     private fun startLocationUpdates() {
         val request = LocationRequest.Builder(
             Priority.PRIORITY_BALANCED_POWER_ACCURACY, 10_000L
