@@ -36,7 +36,7 @@ class FallDetectionService : Service(), SensorEventListener {
     private val IMPACT_THRESHOLD = 20.0f
     private val FALL_WINDOW_MS = 1500L
     private var lastAlertTime = 0L
-    private val ALERT_COOLDOWN_MS = 30_000L
+    private val ALERT_COOLDOWN_MS = 10_000L
     private var alarmPlayer: MediaPlayer? = null
     private var countdownTimer: android.os.CountDownTimer? = null
     private var alertAlreadySent = false
